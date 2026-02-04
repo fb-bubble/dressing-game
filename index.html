@@ -406,7 +406,9 @@
             <button onclick="specialLook(event)">Домашний образ</button>
             <button onclick="specialLook(event)">Петровский</button>
             <button onclick="specialLook(event)">Выход в свет</button>
-            <button onclick="specialLook(event)">Петровский</button>
+            <button onclick="specialLook(event)">Высокая мода</button>
+            <button onclick="specialLook(event)">Домашний образ 2.0</button>
+            <button onclick="specialLook(event)">Училка информатики</button>
             </div>
         </div>
 
@@ -443,6 +445,10 @@
             setupClothesType(event.target.value);
         });
 
+        const modal = document.getElementById('imageModal');
+        const canvas = document.getElementById('picCanvas');
+        const ctx = canvas.getContext('2d');
+
         let accessories = [];
         let shirts = [];
         let pants = [];
@@ -454,12 +460,13 @@
         let body = [];
         let backs = [];
         let clothes = [];
+        let hasBackElement = [];
 
         let currentZ = 1;
 
         initializePictures();
 
-        function setupPicture(picID, base = false) {
+        function setupPicture(picID, base = false, back = false) {
             const element = document.createElement("img");
             element.src = picID + '.png';
             element.id = picID;
@@ -467,6 +474,8 @@
             element.classList.add('image-layer');
 
             costumeContainer.appendChild(element);
+
+            if (back) return picID;
 
             if (base) {
                 element.classList.add('visible');
@@ -497,7 +506,7 @@
             }
         }
 
-        function choose(elID) {
+        function show(elID) {
             if (elID.includes('back')) {
                 for (let back of backs) {
                     document.getElementById(back).classList.remove('visible');
@@ -506,6 +515,19 @@
             }
             document.getElementById(elID).classList.add('visible');
             document.getElementById(elID + 'mini').classList.add('menu-item-chosen');
+
+            if (hasBackElement.includes(elID)) { // с задником
+                document.getElementById(elID + 'back').classList.add('visible');
+            }
+        }
+
+        function hide(elID) {
+            document.getElementById(elID).classList.remove('visible');
+            document.getElementById(elID + 'mini').classList.remove('menu-item-chosen');
+
+            if (hasBackElement.includes(elID)) { // с задником
+                document.getElementById(elID + 'back').classList.remove('visible');
+            }
         }
 
         function initializePictures() {
@@ -515,10 +537,9 @@
                 picID = setupPicture(`assets/back${i + 1}`);
                 backs.push(picID);
 
-                document.getElementById(picID).style['z-index'] = -1;
+                document.getElementById(picID).style['z-index'] = -2;
             }
-            document.getElementById('assets/back1').classList.add('visible');
-            document.getElementById('assets/back1mini').classList.add('menu-item-chosen');
+            show('assets/back1');
 
             setupPicture('assets/start', true);
             
@@ -529,6 +550,9 @@
                 document.getElementById(picID).style['z-index'] = 160; // на теле над одеждой / под волосами
                 if (i === 0) {
                     document.getElementById(picID).style['z-index'] = 500; // шляпа сверху всего
+                    hasBackElement.push(picID);
+                    picID = setupPicture(picID + `back`, false, true);
+                    document.getElementById(picID).style['z-index'] = -1; // задник шляпы
                 }
                 if (i === 1) {
                     document.getElementById(picID).style['z-index'] = 100; // перчатки под кофтами
@@ -561,37 +585,42 @@
 
                 document.getElementById(picID).style['z-index'] = 300; // над всей прочей одеждой
             }
-            for (let i = 0; i < 7; i++) {
+            for (let i = 0; i < 9; i++) {
                 picID = setupPicture(`assets/pants${i + 1}`);
                 pants.push(picID);
 
-                document.getElementById(picID).style['z-index'] = 110; // шорты
-                if (i != 1) { // не заправляются в обувь, над кофтами, под футболками
-                    document.getElementById(picID).style['z-index'] = 140;
+                document.getElementById(picID).style['z-index'] = 140; // не заправляются в обувь, над кофтами, под футболками
+                if (i === 1 || i === 7) {
+                    document.getElementById(picID).style['z-index'] = 110; // шорты и мини-юбка
                 }
-                if (i === 6) { // заправляются в обувь
+                if (i === 6 || i === 8) { // заправляются в обувь
                     document.getElementById(picID).style['z-index'] = 130;
                 }
             }
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 13; i++) {
                 picID = setupPicture(`assets/shirts${i + 1}`);
                 shirts.push(picID);
 
                 document.getElementById(picID).style['z-index'] = 100;
-                if ([0, 1, 2, 3, 6, 7].includes(i)) { // кофты которые заправляются
+                if ([0, 1, 2, 3, 4, 7, 8, 12].includes(i)) { // кофты которые заправляются
                     document.getElementById(picID).style['z-index'] = 120;
                 }
-                if ([4, 5].includes(i)) { // футболки
+                if ([5, 6, 11].includes(i)) { // футболки / кофты сверху
                     document.getElementById(picID).style['z-index'] = 150;
                 }
+                if (i === 12) {
+                    hasBackElement.push(picID);
+                    picID = setupPicture(picID + `back`, false, true);
+                    document.getElementById(picID).style['z-index'] = -1; // задник
+                }
             }
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 4; i++) {
                 picID = setupPicture(`assets/shoes${i + 1}`);
                 shoes.push(picID);
 
                 document.getElementById(picID).style['z-index'] = 135;
             }
-            for (let i = 0; i < 11; i++) {
+            for (let i = 0; i < 12; i++) {
                 picID = setupPicture(`assets/undies${i + 1}`);
                 undies.push(picID);
 
@@ -600,8 +629,7 @@
 
             // defaults
             setupClothesType('undies');
-            document.getElementById('assets/hair1').classList.add('visible');
-            document.getElementById('assets/hair1mini').classList.add('menu-item-chosen');
+            show('assets/hair1');
 
             imageMenu.addEventListener('click', (e) => {
                 // убираем луки
@@ -616,112 +644,95 @@
                     const mainPic = document.getElementById(menuItem.id.slice(0, -4));
 
                     if (mainPic.className.includes('visible')) {
-                        mainPic.classList.remove('visible');
-                        menuItem.classList.remove('menu-item-chosen');
+                        hide(mainPic.id);
                     } else {
                         if (menuItem.id.includes('hair')) {
                             // чистим прически
                             for (let hairID of hair) {
-                                document.getElementById(hairID).classList.remove('visible');
-                                document.getElementById(hairID + 'mini').classList.remove('menu-item-chosen');
+                                hide(hairID);
                             }
                         }
 
                         // снимаем старые носки
                         if (['assets/undies7mini', 'assets/undies8mini', 'assets/undies9mini', 'assets/undies10mini', 'assets/undies11mini'].includes(menuItem.id)) {
                             for (let sock of ['assets/undies7', 'assets/undies8', 'assets/undies9', 'assets/undies10', 'assets/undies11']) {
-                                document.getElementById(sock).classList.remove('visible');
-                                document.getElementById(sock + 'mini').classList.remove('menu-item-chosen');
+                                hide(sock);
                             }
                         }
 
                         // снимаем старые чулки
-                        if (['assets/undies4mini', 'assets/undies5mini'].includes(menuItem.id)) {
-                            for (let sock of ['assets/undies4', 'assets/undies5']) {
-                                document.getElementById(sock).classList.remove('visible');
-                                document.getElementById(sock + 'mini').classList.remove('menu-item-chosen');
+                        if (['assets/undies4mini', 'assets/undies5mini', 'assets/undies6mini', 'assets/undies12mini'].includes(menuItem.id)) {
+                            for (let stocking of ['assets/undies4', 'assets/undies5', 'assets/undies6', 'assets/undies12']) {
+                                hide(stocking);
                             }
                         }
 
-                        // снимаем старые кофты
-                        if (menuItem.id.includes('shirts') && !['assets/shirts9mini', 'assets/shirts10mini'].includes(menuItem.id)) {
-                            for (let shirt of shirts.slice(0, -2)) {
-                                document.getElementById(shirt).classList.remove('visible');
-                                document.getElementById(shirt + 'mini').classList.remove('menu-item-chosen');
+                        // снимаем старые кофты (кроме универсальных)
+                        if (menuItem.id.includes('shirts') && !['assets/shirts10mini', 'assets/shirts11mini'].includes(menuItem.id)) {
+                            for (let shirt of shirts) {
+                                if (!['assets/shirts10', 'assets/shirts11'].includes(shirt)) hide(shirt);
                             }
                         }
 
                         // все штаны и платья не пересекаются
                         if (menuItem.id.includes('pants') || menuItem.id.includes('dresses')) {
                             for (let pantsID of pants) {
-                                document.getElementById(pantsID).classList.remove('visible');
-                                document.getElementById(pantsID + 'mini').classList.remove('menu-item-chosen');
+                                hide(pantsID);
                             }
                             for (let dress of dresses) {
-                                document.getElementById(dress).classList.remove('visible');
-                                document.getElementById(dress + 'mini').classList.remove('menu-item-chosen');
+                                hide(dress);
                             }
                         }
 
                         // снимаем старую обувь
                         if (menuItem.id.includes('shoes')) {
                             for (let shoesID of shoes) {
-                                document.getElementById(shoesID).classList.remove('visible');
-                                document.getElementById(shoesID + 'mini').classList.remove('menu-item-chosen');
+                                hide(shoesID);
                             }
                         }
 
                         // разные очки
                         if (['assets/accessories5mini', 'assets/accessories6mini'].includes(menuItem.id)) {
                             for (let glasses of ['assets/accessories5', 'assets/accessories6']) {
-                                document.getElementById(glasses).classList.remove('visible');
-                                document.getElementById(glasses + 'mini').classList.remove('menu-item-chosen');
+                                hide(glasses);
                             }
                         }
 
                         // комбинезоны — убираем куртки и волосы
                         if (['assets/dresses2mini', 'assets/dresses3mini'].includes(menuItem.id)) {
                             for (let hairID of hair) {
-                                document.getElementById(hairID).classList.remove('visible');
-                                document.getElementById(hairID + 'mini').classList.remove('menu-item-chosen');
+                                hide(hairID);
                             }
                             for (let outerwearID of outerwear) {
-                                document.getElementById(outerwearID).classList.remove('visible');
-                                document.getElementById(outerwearID + 'mini').classList.remove('menu-item-chosen');
+                                hide(outerwearID);
                             }
                         }
 
                         // шляпа и комбезы не работают вместе
                         if (menuItem.id.includes('accessories1')) {
                             for (let combos of ['assets/dresses2', 'assets/dresses3']) {
-                                document.getElementById(combos).classList.remove('visible');
-                                document.getElementById(combos + 'mini').classList.remove('menu-item-chosen');
+                                hide(combos);
                             }
                         }
                         if (['assets/dresses2mini', 'assets/dresses3mini'].includes(menuItem.id)) {
-                            document.getElementById('assets/accessories1').classList.remove('visible');
-                            document.getElementById('assets/accessories1mini').classList.remove('menu-item-chosen');
+                            hide('assets/accessories1');
                         }
 
                         // куртки и комбинезоны не работают вместе
                         if (menuItem.id.includes('outerwear')) {
                             for (let combos of ['assets/dresses2', 'assets/dresses3']) {
-                                document.getElementById(combos).classList.remove('visible');
-                                document.getElementById(combos + 'mini').classList.remove('menu-item-chosen');
+                                hide(combos);
                             }
                         }
 
                         // разные фоны
                         if (menuItem.id.includes('back')) {
                             for (let backID of backs) {
-                                document.getElementById(backID).classList.remove('visible');
-                                document.getElementById(backID + 'mini').classList.remove('menu-item-chosen');
+                                hide(backID);
                             }
                         }
 
-                        mainPic.classList.add('visible');
-
-                        menuItem.classList.add('menu-item-chosen');
+                        show(mainPic.id);
                     }
                 }
             });
@@ -730,11 +741,7 @@
         function clearClothes() {
             for (let pic of clothes) {
                 if (!pic.includes('back')) {
-                    // clothes
-                    document.getElementById(pic).classList.remove('visible');
-
-                    // chosen
-                    document.getElementById(pic + 'mini').classList.remove('menu-item-chosen');
+                    hide(pic);
                 }
             }
 
@@ -743,8 +750,7 @@
                 b.classList.remove('button-chosen');
             }
 
-            document.getElementById('assets/hair1').classList.add('visible');
-            document.getElementById('assets/hair1mini').classList.add('menu-item-chosen');
+            show('assets/hair1');
         }
 
         function specialLook(event) {
@@ -765,51 +771,51 @@
 
             switch (event.target.textContent) {
                 case 'Домашний образ':
-                    choose('assets/undies2');
-                    choose('assets/undies11');
-                    choose('assets/shirts6');
-                    choose('assets/shoes2');
-                    choose('assets/accessories3');
-                    choose('assets/back1');
+                    show('assets/undies2');
+                    show('assets/undies11');
+                    show('assets/shirts6');
+                    show('assets/shoes2');
+                    show('assets/accessories3');
+                    show('assets/back1');
                     break;
                 case 'Петровский':
-                    choose('assets/hair4');
-                    choose('assets/shirts7');
-                    choose('assets/pants7');
-                    choose('assets/shoes3');
-                    choose('assets/accessories4');
-                    choose('assets/accessories5');
+                    show('assets/hair4');
+                    show('assets/shirts7');
+                    show('assets/pants7');
+                    show('assets/shoes3');
+                    show('assets/accessories4');
+                    show('assets/accessories5');
                     break;
                 case 'Выход в свет':
-                    choose('assets/accessories1');
-                    choose('assets/accessories2');
-                    choose('assets/hair2');
-                    choose('assets/dresses1');
-                    choose('assets/undies3');
-                    choose('assets/undies5');
-                    choose('assets/back3');
+                    show('assets/accessories1');
+                    show('assets/accessories2');
+                    show('assets/hair2');
+                    show('assets/dresses1');
+                    show('assets/undies3');
+                    show('assets/undies5');
+                    show('assets/back3');
+                    break;
+                case 'Высокая мода':
+                    show('assets/shirts13');
+                    show('assets/pants9');
+                    break;
+                case 'Домашний образ 2.0':
+                    show('assets/shirts5');
+                    show('assets/back1');
+                    break;
+                case 'Училка информатики':
+                    show('assets/shirts12');
+                    show('assets/pants8');
+                    show('assets/shoes4');
+                    show('assets/undies12');
+                    show('assets/accessories5');
                     break;
             }
         }
 
         clearBtn.addEventListener('click', clearClothes); 
 
-        function createModal(imageSources) {
-            let modal = document.getElementById('imageModal');
-            
-            // закрытие окошка
-            modal.querySelector('.close-btn').addEventListener('click', () => {
-                modal.style.display = 'none';
-            });
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
-
-            const canvas = document.getElementById('picCanvas');
-            const ctx = canvas.getContext('2d');
-            
+        function configModal(imageSources) {
             const images = [];
 
             let loadedCount = 0;
@@ -825,7 +831,7 @@
             
             imageSources.forEach((src, index) => {
                 const img = new Image();
-                img.crossOrigin = 'anonymous'; // Handle CORS if needed
+                img.crossOrigin = 'anonymous';
                 
                 img.onload = () => {
                     images[index] = img;
@@ -844,18 +850,25 @@
                 
                 img.src = src;
             });
-            
-            document.getElementById('savePicBtn').addEventListener('click', () => {
-                const link = document.createElement('a');
-                link.download = `composite-image-${Date.now()}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            });
-            
-            return modal;
         }
+
+        modal.querySelector('.close-btn').addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        document.getElementById('savePicBtn').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = `composite-image-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
         
-        // Save canvas as image
         saveBtn.addEventListener('click', () => {
             const layers = Array.from(document.querySelectorAll('.visible'));
           
@@ -874,9 +887,6 @@
         document.getElementById('picCanvas').addEventListener('touchstart', (e) => {
             e.preventDefault();
         });
-        
-        // Initialize the canvas with default content
-        // initializeCanvas();
     </script>
 </body>
 </html>
