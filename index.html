@@ -220,6 +220,11 @@
             background-color: #9476ce;
             color: white;
         }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
         
         .clear-btn {
             background: white;
@@ -403,12 +408,12 @@
     <div class="controls">
         <div class="outfits-scroll-container">
             <div class="outfits">
-            <button onclick="specialLook(event)">Домашний образ</button>
-            <button onclick="specialLook(event)">Петровский</button>
-            <button onclick="specialLook(event)">Выход в свет</button>
-            <button onclick="specialLook(event)">Высокая мода</button>
-            <button onclick="specialLook(event)">Домашний образ 2.0</button>
-            <button onclick="specialLook(event)">Училка информатики</button>
+            <button disabled="disabled" onclick="specialLook(event)">Домашний образ</button>
+            <button disabled="disabled" onclick="specialLook(event)">Петровский</button>
+            <button disabled="disabled" onclick="specialLook(event)">Выход в свет</button>
+            <button disabled="disabled" onclick="specialLook(event)">Высокая мода</button>
+            <button disabled="disabled" onclick="specialLook(event)">Домашний образ 2.0</button>
+            <button disabled="disabled" onclick="specialLook(event)">Училка информатики</button>
             </div>
         </div>
 
@@ -642,7 +647,8 @@
 
                 // defaults
                 setupClothesType('undies');
-                show('assets/hair1');
+
+                document.querySelectorAll('button').forEach((btn) => { btn.disabled = false; });
 
                 imageMenu.addEventListener('click', (e) => {
                     // убираем луки
@@ -667,15 +673,15 @@
                             }
 
                             // снимаем старые носки
-                            if (['assets/undies7mini', 'assets/undies8mini', 'assets/undies9mini', 'assets/undies10mini', 'assets/undies11mini'].includes(menuItem.id)) {
-                                for (let sock of ['assets/undies7', 'assets/undies8', 'assets/undies9', 'assets/undies10', 'assets/undies11']) {
+                            if (['assets/undies8mini', 'assets/undies9mini', 'assets/undies10mini', 'assets/undies11mini', 'assets/undies12mini'].includes(menuItem.id)) {
+                                for (let sock of ['assets/undies8', 'assets/undies9', 'assets/undies10', 'assets/undies11', 'assets/undies12']) {
                                     hide(sock);
                                 }
                             }
 
                             // снимаем старые чулки
-                            if (['assets/undies4mini', 'assets/undies5mini', 'assets/undies6mini', 'assets/undies12mini'].includes(menuItem.id)) {
-                                for (let stocking of ['assets/undies4', 'assets/undies5', 'assets/undies6', 'assets/undies12']) {
+                            if (['assets/undies4mini', 'assets/undies5mini', 'assets/undies6mini', 'assets/undies7mini'].includes(menuItem.id)) {
+                                for (let stocking of ['assets/undies4', 'assets/undies5', 'assets/undies6', 'assets/undies7']) {
                                     hide(stocking);
                                 }
                             }
@@ -786,7 +792,7 @@
             switch (event.target.textContent) {
                 case 'Домашний образ':
                     show('assets/undies2');
-                    show('assets/undies11');
+                    show('assets/undies12');
                     show('assets/shirts7');
                     show('assets/shoes2');
                     show('assets/accessories3');
@@ -821,7 +827,7 @@
                     show('assets/shirts12');
                     show('assets/pants8');
                     show('assets/shoes4');
-                    show('assets/undies12');
+                    show('assets/undies7');
                     show('assets/accessories5');
                     break;
             }
