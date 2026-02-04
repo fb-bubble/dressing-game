@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Гардеробная Разумовского</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Charter';
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .description {
+            font-size: 1.1em;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 100vh;
+            min-height: 0;
+            aspect-ratio: 4 / 3;
+            display: flex;
+            flex-direction: row;
+            margin-top: 30px;
+        }
+        
+        .costume-container {
+            height: 100%;
+            aspect-ratio: 1;
+            padding: 10px;
+
+            overflow: hidden;
+            flex: 1;
+            min-width: 0;
+            position: relative;
+
+            border-radius: 6px;
+        }
+
+        .image-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .visible {
+            opacity: 1;
+        }
+        
+        canvas {
+            width: 100%;
+            max-height: 100%;
+            aspect-ratio: 1 / 1;
+            display: block;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .menu-container {
+            aspect-ratio: 1 / 3;
+            height: 100%;
+            padding: 0 0 0 20px;
+
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        select, ::picker(select) {
+            appearance: base-select;
+        }
+
+        select {
+            padding: 10px 15px;
+            font-family: 'Charter';
+            border-color: #666;
+            margin-bottom: 10px;
+        }
+
+        ::picker(select) {
+            border-color: #666;
+            border-radius: 8px;
+        }
+
+        option {
+            padding: 10px;
+        }
+
+        .scroll-container {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #666;
+            border-radius: 8px;
+        }
+        
+        .scroll-container::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        
+        .scroll-container::-webkit-scrollbar-track {
+            border-radius: 8px;
+            margin: 5px;
+        }
+        
+        .scroll-container::-webkit-scrollbar-thumb {
+            background: #aaa;
+            border-radius: 8px;
+        }
+        
+        .image-menu {
+            display: flex;
+            flex-direction: column;
+            width: fit-content;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .menu-item {
+            aspect-ratio: 1;
+            width: 100%;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            display: none;
+        }
+
+        .menu-item-visible {
+            display: block;
+        }
+
+        .menu-item-chosen {
+            border-color: #9476ce;
+            background-color: rgba(146,110,174, 0.2);
+        }
+
+        .menu-item:hover, .menu-item:active {
+            border-color: #9476ce;
+            transform: scale(1.03);
+        }
+
+        .controls {
+            display: flex;
+            margin-top: 10px;
+            width: 100%;
+            max-width: 100vh;
+            gap: 10px;
+        }
+
+        .outfits {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            width: fit-content;
+        }
+
+        .outfits-scroll-container {
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: hidden;
+            border: 1px solid #666;
+            border-radius: 8px;
+        }
+        
+        .outfits-scroll-container::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        
+        .outfits-scroll-container::-webkit-scrollbar-track {
+            border-radius: 8px;
+            margin: 5px;
+        }
+        
+        .outfits-scroll-container::-webkit-scrollbar-thumb {
+            background: #aaa;
+            border-radius: 8px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            padding-top: 11px;
+            padding-bottom: 15px;
+        }
+        
+        button {
+            padding: 8px 15px;
+            background-color: white;
+            color: #9476ce;
+            border: 2px solid #9476ce;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: 'Charter';
+            white-space: nowrap;
+        }
+        
+        button:hover, .button-chosen {
+            background-color: #9476ce;
+            color: white;
+        }
+        
+        .clear-btn {
+            background: white;
+            border-color: #e26337;
+            color: #e26337;
+        }
+        
+        .clear-btn:hover {
+            background: #e26337;
+            color: white;
+        }
+
+        .save-btn {
+            border: 2px solid #2ecc71;
+            background-color: white;
+            color: #2ecc71;
+        }
+        
+        .save-btn:hover {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            overflow: auto;
+        }
+        
+        .modal-window {
+            background-color: #fff;
+            margin: 5vh auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 70vh;
+            height: fit-content;
+            border-radius: 8px;
+            position: relative;
+
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 25px;
+            right: 35px;
+            font-size: 25px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .canvas-container {
+            position: relative;
+            border-radius: 8px;
+            height: 80%;            
+            aspect-ratio: 1;
+        }
+        
+        #picCanvas {
+            border: 1px solid #ddd;
+            background-color: white;
+            position: relative;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                
+                min-width: 0;
+                aspect-ratio: auto;
+            }
+
+            .canvas-container {
+                width: 100%;
+                height: auto;
+            }
+
+            .menu-container {
+                width: 100%;
+                height: 200px;
+                padding-left: 0;
+                padding-top: 20px;
+            }
+
+            .scroll-container {
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+
+            .image-menu {
+                flex-direction: row;
+                height: 100%;
+            }
+
+            .menu-item {
+                height: 100%;
+                width: auto;
+            }
+
+            button {
+                font-size: 0.8rem;
+            }
+
+            .save-btn {
+                width: 100%;
+            }
+
+            .clear-btn {
+                width: 100%;
+            }
+
+            .buttons {
+                width: 100%;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+                gap: 0;
+            }
+
+            .modal-window {
+                padding: 15px;
+            }
+
+            .close-btn {
+                top: 15px;
+                right: 15px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Гардеробная Разумовского</h2>
+
+    <span class="description">Сережа опаздывает на свидание. Подбери ему идеальный образ!</span>
+    
+    <div class="container">
+        <div class="costume-container" id="costumeContainer">
+        </div>
+        
+        <div class="menu-container">
+            <select name="clothes-type" id="clothesTypeSelect">
+              <option value="undies">Белье</option>
+              <option value="shirts">Верх</option>
+              <option value="pants">Низ</option>
+              <option value="shoes">Обувь</option>
+              <option value="dresses">Полнорост</option>
+              <option value="outerwear">Верхняя одежда</option>
+              <option value="accessories">Аксессуары</option>
+              <option value="hair">Прически</option>
+              <option value="body">Лицо и шрамы</option>
+              <option value="back">Фоны</option>
+            </select>
+
+            <div class="scroll-container">
+                <div class="image-menu" id="imageMenu">
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="controls">
+        <div class="outfits-scroll-container">
+            <div class="outfits">
+            <button onclick="specialLook(event)">Домашний образ</button>
+            <button onclick="specialLook(event)">Петровский</button>
+            <button onclick="specialLook(event)">Выход в свет</button>
+            <button onclick="specialLook(event)">Петровский</button>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="save-btn" id="saveBtn">Сохранить</button>
+            <button class="clear-btn" id="clearBtn">Очистить</button>
+        </div>
+    </div>
+    
+    </div>
+
+    <div id="imageModal" class="modal">
+        <div class="modal-window">
+            <span class="close-btn">&times;</span>
+            <h3>Сережа к свиданию готов!</h3>
+            
+            <div class="canvas-container">
+                <canvas id="picCanvas" style="height: 100%; width: 100%;" height="1200" width="1200"></canvas>
+            </div>
+
+            <button id="savePicBtn">Скачать результат</button>
+        </div>
+    </div>
+
+    <script>
+        const costumeContainer = document.getElementById('costumeContainer');
+        const imageMenu = document.getElementById('imageMenu');
+        const clearBtn = document.getElementById('clearBtn');
+        const saveBtn = document.getElementById('saveBtn');
+
+        const clothesTypeSelect = document.getElementById('clothesTypeSelect');
+
+        clothesTypeSelect.addEventListener("change", (event) => {
+            setupClothesType(event.target.value);
+        });
+
+        let accessories = [];
+        let shirts = [];
+        let pants = [];
+        let undies = [];
+        let shoes = [];
+        let dresses = [];
+        let outerwear = [];
+        let hair = [];
+        let body = [];
+        let backs = [];
+        let clothes = [];
+
+        let currentZ = 1;
+
+        initializePictures();
+
+        function setupPicture(picID, base = false) {
+            const element = document.createElement("img");
+            element.src = picID + '.png';
+            element.id = picID;
+            element.loading = 'lazy';
+            element.classList.add('image-layer');
+
+            costumeContainer.appendChild(element);
+
+            if (base) {
+                element.classList.add('visible');
+
+                return;
+            }
+
+            const menuItem = document.createElement('img');
+            menuItem.className = 'menu-item';
+            menuItem.src = picID + 'mini.png';
+            menuItem.id = picID + 'mini';
+            menuItem.loading = 'lazy';
+
+            imageMenu.appendChild(menuItem);
+
+            clothes.push(picID);
+
+            return picID;
+        }
+
+        function setupClothesType(type) {
+            for (let pic of clothes) {
+                if (pic.includes(type)) {
+                    document.getElementById(pic + 'mini').classList.add('menu-item-visible');
+                } else {
+                    document.getElementById(pic + 'mini').classList.remove('menu-item-visible');
+                }
+            }
+        }
+
+        function choose(elID) {
+            if (elID.includes('back')) {
+                for (let back of backs) {
+                    document.getElementById(back).classList.remove('visible');
+                    document.getElementById(back + 'mini').classList.remove('menu-item-chosen');
+                }
+            }
+            document.getElementById(elID).classList.add('visible');
+            document.getElementById(elID + 'mini').classList.add('menu-item-chosen');
+        }
+
+        function initializePictures() {
+            let picID;
+
+            for (let i = 0; i < 4; i++) {
+                picID = setupPicture(`assets/back${i + 1}`);
+                backs.push(picID);
+
+                document.getElementById(picID).style['z-index'] = -1;
+            }
+            document.getElementById('assets/back1').classList.add('visible');
+            document.getElementById('assets/back1mini').classList.add('menu-item-chosen');
+
+            setupPicture('assets/start', true);
+            
+            for (let i = 0; i < 7; i++) {
+                picID = setupPicture(`assets/accessories${i + 1}`);
+                accessories.push(picID);
+
+                document.getElementById(picID).style['z-index'] = 160; // на теле над одеждой / под волосами
+                if (i === 0) {
+                    document.getElementById(picID).style['z-index'] = 500; // шляпа сверху всего
+                }
+                if (i === 1) {
+                    document.getElementById(picID).style['z-index'] = 100; // перчатки под кофтами
+                }
+                if (i === 6) {
+                    document.getElementById(picID).style['z-index'] = 350; // шарф под волосами над одеждой
+                }
+            }
+            for (let i = 0; i < 4; i++) {
+                picID = setupPicture(`assets/body${i + 1}`);
+                body.push(picID);
+
+                document.getElementById(picID).style['z-index'] = 1; // под всем
+            }
+            for (let i = 0; i < 3; i++) {
+                picID = setupPicture(`assets/dresses${i + 1}`);
+                dresses.push(picID);
+
+                document.getElementById(picID).style['z-index'] = 110; // под кофтами
+            }
+            for (let i = 0; i < 4; i++) {
+                picID = setupPicture(`assets/hair${i + 1}`);
+                hair.push(picID);
+
+                document.getElementById(picID).style['z-index'] = 400; // над всей одеждой
+            }
+            for (let i = 0; i < 1; i++) {
+                picID = setupPicture(`assets/outerwear${i + 1}`);
+                outerwear.push(picID);
+
+                document.getElementById(picID).style['z-index'] = 300; // над всей прочей одеждой
+            }
+            for (let i = 0; i < 7; i++) {
+                picID = setupPicture(`assets/pants${i + 1}`);
+                pants.push(picID);
+
+                document.getElementById(picID).style['z-index'] = 110; // шорты
+                if (i != 1) { // не заправляются в обувь, над кофтами, под футболками
+                    document.getElementById(picID).style['z-index'] = 140;
+                }
+                if (i === 6) { // заправляются в обувь
+                    document.getElementById(picID).style['z-index'] = 130;
+                }
+            }
+            for (let i = 0; i < 10; i++) {
+                picID = setupPicture(`assets/shirts${i + 1}`);
+                shirts.push(picID);
+
+                document.getElementById(picID).style['z-index'] = 100;
+                if ([0, 1, 2, 3, 6, 7].includes(i)) { // кофты которые заправляются
+                    document.getElementById(picID).style['z-index'] = 120;
+                }
+                if ([4, 5].includes(i)) { // футболки
+                    document.getElementById(picID).style['z-index'] = 150;
+                }
+            }
+            for (let i = 0; i < 3; i++) {
+                picID = setupPicture(`assets/shoes${i + 1}`);
+                shoes.push(picID);
+
+                document.getElementById(picID).style['z-index'] = 135;
+            }
+            for (let i = 0; i < 11; i++) {
+                picID = setupPicture(`assets/undies${i + 1}`);
+                undies.push(picID);
+
+                document.getElementById(picID).style['z-index'] = 1; // под всем
+            }
+
+            // defaults
+            setupClothesType('undies');
+            document.getElementById('assets/hair1').classList.add('visible');
+            document.getElementById('assets/hair1mini').classList.add('menu-item-chosen');
+
+            imageMenu.addEventListener('click', (e) => {
+                // убираем луки
+                const buttons = document.getElementsByTagName("button");
+                for (const b of buttons) {
+                    b.classList.remove('button-chosen');
+                }
+                // что выбрали
+                let menuItem = e.target.closest('.menu-item');
+                
+                if (menuItem) {
+                    const mainPic = document.getElementById(menuItem.id.slice(0, -4));
+
+                    if (mainPic.className.includes('visible')) {
+                        mainPic.classList.remove('visible');
+                        menuItem.classList.remove('menu-item-chosen');
+                    } else {
+                        if (menuItem.id.includes('hair')) {
+                            // чистим прически
+                            for (let hairID of hair) {
+                                document.getElementById(hairID).classList.remove('visible');
+                                document.getElementById(hairID + 'mini').classList.remove('menu-item-chosen');
+                            }
+                        }
+
+                        // снимаем старые носки
+                        if (['assets/undies7mini', 'assets/undies8mini', 'assets/undies9mini', 'assets/undies10mini', 'assets/undies11mini'].includes(menuItem.id)) {
+                            for (let sock of ['assets/undies7', 'assets/undies8', 'assets/undies9', 'assets/undies10', 'assets/undies11']) {
+                                document.getElementById(sock).classList.remove('visible');
+                                document.getElementById(sock + 'mini').classList.remove('menu-item-chosen');
+                            }
+                        }
+
+                        // снимаем старые чулки
+                        if (['assets/undies4mini', 'assets/undies5mini'].includes(menuItem.id)) {
+                            for (let sock of ['assets/undies4', 'assets/undies5']) {
+                                document.getElementById(sock).classList.remove('visible');
+                                document.getElementById(sock + 'mini').classList.remove('menu-item-chosen');
+                            }
+                        }
+
+                        // снимаем старые кофты
+                        if (menuItem.id.includes('shirts') && !['assets/shirts9mini', 'assets/shirts10mini'].includes(menuItem.id)) {
+                            for (let shirt of shirts.slice(0, -2)) {
+                                document.getElementById(shirt).classList.remove('visible');
+                                document.getElementById(shirt + 'mini').classList.remove('menu-item-chosen');
+                            }
+                        }
+
+                        // все штаны и платья не пересекаются
+                        if (menuItem.id.includes('pants') || menuItem.id.includes('dresses')) {
+                            for (let pantsID of pants) {
+                                document.getElementById(pantsID).classList.remove('visible');
+                                document.getElementById(pantsID + 'mini').classList.remove('menu-item-chosen');
+                            }
+                            for (let dress of dresses) {
+                                document.getElementById(dress).classList.remove('visible');
+                                document.getElementById(dress + 'mini').classList.remove('menu-item-chosen');
+                            }
+                        }
+
+                        // снимаем старую обувь
+                        if (menuItem.id.includes('shoes')) {
+                            for (let shoesID of shoes) {
+                                document.getElementById(shoesID).classList.remove('visible');
+                                document.getElementById(shoesID + 'mini').classList.remove('menu-item-chosen');
+                            }
+                        }
+
+                        // разные очки
+                        if (['assets/accessories5mini', 'assets/accessories6mini'].includes(menuItem.id)) {
+                            for (let glasses of ['assets/accessories5', 'assets/accessories6']) {
+                                document.getElementById(glasses).classList.remove('visible');
+                                document.getElementById(glasses + 'mini').classList.remove('menu-item-chosen');
+                            }
+                        }
+
+                        // комбинезоны — убираем куртки и волосы
+                        if (['assets/dresses2mini', 'assets/dresses3mini'].includes(menuItem.id)) {
+                            for (let hairID of hair) {
+                                document.getElementById(hairID).classList.remove('visible');
+                                document.getElementById(hairID + 'mini').classList.remove('menu-item-chosen');
+                            }
+                            for (let outerwearID of outerwear) {
+                                document.getElementById(outerwearID).classList.remove('visible');
+                                document.getElementById(outerwearID + 'mini').classList.remove('menu-item-chosen');
+                            }
+                        }
+
+                        // шляпа и комбезы не работают вместе
+                        if (menuItem.id.includes('accessories1')) {
+                            for (let combos of ['assets/dresses2', 'assets/dresses3']) {
+                                document.getElementById(combos).classList.remove('visible');
+                                document.getElementById(combos + 'mini').classList.remove('menu-item-chosen');
+                            }
+                        }
+                        if (['assets/dresses2mini', 'assets/dresses3mini'].includes(menuItem.id)) {
+                            document.getElementById('assets/accessories1').classList.remove('visible');
+                            document.getElementById('assets/accessories1mini').classList.remove('menu-item-chosen');
+                        }
+
+                        // куртки и комбинезоны не работают вместе
+                        if (menuItem.id.includes('outerwear')) {
+                            for (let combos of ['assets/dresses2', 'assets/dresses3']) {
+                                document.getElementById(combos).classList.remove('visible');
+                                document.getElementById(combos + 'mini').classList.remove('menu-item-chosen');
+                            }
+                        }
+
+                        // разные фоны
+                        if (menuItem.id.includes('back')) {
+                            for (let backID of backs) {
+                                document.getElementById(backID).classList.remove('visible');
+                                document.getElementById(backID + 'mini').classList.remove('menu-item-chosen');
+                            }
+                        }
+
+                        mainPic.classList.add('visible');
+
+                        menuItem.classList.add('menu-item-chosen');
+                    }
+                }
+            });
+        }
+
+        function clearClothes() {
+            for (let pic of clothes) {
+                if (!pic.includes('back')) {
+                    // clothes
+                    document.getElementById(pic).classList.remove('visible');
+
+                    // chosen
+                    document.getElementById(pic + 'mini').classList.remove('menu-item-chosen');
+                }
+            }
+
+            const buttons = document.getElementsByTagName("button");
+            for (const b of buttons) {
+                b.classList.remove('button-chosen');
+            }
+
+            document.getElementById('assets/hair1').classList.add('visible');
+            document.getElementById('assets/hair1mini').classList.add('menu-item-chosen');
+        }
+
+        function specialLook(event) {
+            if (event.target.className.includes('button-chosen')) {
+                clearClothes();
+
+                return;
+            }
+
+            clearClothes();
+
+            const buttons = document.getElementsByTagName("button");
+            for (const b of buttons) {
+                b.classList.remove('button-chosen');
+            }
+
+            event.target.classList.add('button-chosen');
+
+            switch (event.target.textContent) {
+                case 'Домашний образ':
+                    choose('assets/undies2');
+                    choose('assets/undies11');
+                    choose('assets/shirts6');
+                    choose('assets/shoes2');
+                    choose('assets/accessories3');
+                    choose('assets/back1');
+                    break;
+                case 'Петровский':
+                    choose('assets/hair4');
+                    choose('assets/shirts7');
+                    choose('assets/pants7');
+                    choose('assets/shoes3');
+                    choose('assets/accessories4');
+                    choose('assets/accessories5');
+                    break;
+                case 'Выход в свет':
+                    choose('assets/accessories1');
+                    choose('assets/accessories2');
+                    choose('assets/hair2');
+                    choose('assets/dresses1');
+                    choose('assets/undies3');
+                    choose('assets/undies5');
+                    choose('assets/back3');
+                    break;
+            }
+        }
+
+        clearBtn.addEventListener('click', clearClothes); 
+
+        function createModal(imageSources) {
+            let modal = document.getElementById('imageModal');
+            
+            // закрытие окошка
+            modal.querySelector('.close-btn').addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            const canvas = document.getElementById('picCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            const images = [];
+
+            let loadedCount = 0;
+            const totalImages = imageSources.length;
+            
+            function updateCanvas() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                images.forEach((img, index) => {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                });
+            }
+            
+            imageSources.forEach((src, index) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous'; // Handle CORS if needed
+                
+                img.onload = () => {
+                    images[index] = img;
+                    
+                    loadedCount++;
+                    if (loadedCount === totalImages) {
+                        updateCanvas();
+                        modal.style.display = 'block';
+                    }
+                };
+                
+                img.onerror = () => {
+                    loadedCount++;
+                    console.error(`Failed to load image: ${src}`);
+                };
+                
+                img.src = src;
+            });
+            
+            document.getElementById('savePicBtn').addEventListener('click', () => {
+                const link = document.createElement('a');
+                link.download = `composite-image-${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+            
+            return modal;
+        }
+        
+        // Save canvas as image
+        saveBtn.addEventListener('click', () => {
+            const layers = Array.from(document.querySelectorAll('.visible'));
+          
+            const sortedLayers = layers.sort((a, b) => {
+                const zIndexA = parseInt(window.getComputedStyle(a).zIndex) || 0;
+                const zIndexB = parseInt(window.getComputedStyle(b).zIndex) || 0;
+                return zIndexA - zIndexB;
+            });
+          
+            const layersIDs = sortedLayers.map(element => element.id + '.png');
+
+            createModal(layersIDs);
+        });
+        
+        // Touch support for mobile
+        document.getElementById('picCanvas').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+        });
+        
+        // Initialize the canvas with default content
+        // initializeCanvas();
+    </script>
+</body>
+</html>
