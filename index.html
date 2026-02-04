@@ -534,9 +534,10 @@
             let picID;
 
             // base
-            setupPicture(`assets/back1`, true);
-            backs.push(`assets/back1`);
-            document.getElementById(`assets/back1`).style['z-index'] = -2;
+            picID = setupPicture(`assets/back1`);
+            backs.push(picID);
+            document.getElementById(picID).style['z-index'] = -2;
+            show(picID);
 
             setupPicture('assets/start', true);
 
