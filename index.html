@@ -418,8 +418,8 @@
         </div>
 
         <div class="buttons">
-            <button class="save-btn" id="saveBtn">Сохранить</button>
-            <button class="clear-btn" id="clearBtn">Очистить</button>
+            <button disabled="disabled" class="save-btn" id="saveBtn">Сохранить</button>
+            <button disabled="disabled" class="clear-btn" id="clearBtn">Очистить</button>
         </div>
     </div>
     
@@ -561,7 +561,7 @@
                     document.getElementById(picID).style['z-index'] = -2;
                 }
                 
-                for (let i = 0; i < 7; i++) {
+                for (let i = 0; i < 11; i++) {
                     picID = setupPicture(`assets/accessories${i + 1}`);
                     accessories.push(picID);
 
@@ -575,21 +575,34 @@
                     if (i === 1) {
                         document.getElementById(picID).style['z-index'] = 100; // перчатки под кофтами
                     }
-                    if (i === 6) {
+                    if (i === 6 || i === 10) {
                         document.getElementById(picID).style['z-index'] = 350; // шарф под волосами над одеждой
                     }
+                    if (i === 8) {
+                        document.getElementById(picID).style['z-index'] = 450; // уши над волосами
+                    }
+                    if (i === 7 || i === 9) {
+                        document.getElementById(picID).style['z-index'] = -1; // крылья или хвост за спиной
+                    }
                 }
-                for (let i = 0; i < 4; i++) {
+                for (let i = 0; i < 5; i++) {
                     picID = setupPicture(`assets/body${i + 1}`);
                     body.push(picID);
 
                     document.getElementById(picID).style['z-index'] = 1; // под всем
                 }
-                for (let i = 0; i < 3; i++) {
+                for (let i = 0; i < 4; i++) {
                     picID = setupPicture(`assets/dresses${i + 1}`);
                     dresses.push(picID);
 
                     document.getElementById(picID).style['z-index'] = 110; // под кофтами
+
+                    if (i === 3) {
+                        document.getElementById(picID).style['z-index'] = 200; // над одеждой под верхней
+                        hasBackElement.push(picID);
+                        picID = setupPicture(picID + `back`, false, true);
+                        document.getElementById(picID).style['z-index'] = -1; // задник
+                    }
                 }
                 for (let i = 1; i < 4; i++) {
                     picID = setupPicture(`assets/hair${i + 1}`);
@@ -600,18 +613,23 @@
                 for (let i = 0; i < 1; i++) {
                     picID = setupPicture(`assets/outerwear${i + 1}`);
                     outerwear.push(picID);
-
                     document.getElementById(picID).style['z-index'] = 300; // над всей прочей одеждой
+
+                    if (i === 0) {
+                        hasBackElement.push(picID);
+                        picID = setupPicture(picID + `back`, false, true);
+                        document.getElementById(picID).style['z-index'] = -1; // задник
+                    }
                 }
-                for (let i = 0; i < 9; i++) {
+                for (let i = 0; i < 11; i++) {
                     picID = setupPicture(`assets/pants${i + 1}`);
                     pants.push(picID);
 
                     document.getElementById(picID).style['z-index'] = 140; // не заправляются в обувь, над кофтами, под футболками
-                    if (i === 1 || i === 7) {
-                        document.getElementById(picID).style['z-index'] = 110; // шорты и мини-юбка
+                    if (i === 1 || i === 7 || i === 10) {
+                        document.getElementById(picID).style['z-index'] = 110; // шорты мини-юбка и плавки
                     }
-                    if (i === 6 || i === 8) { // заправляются в обувь
+                    if (i === 6 || i === 8 || i === 9) { // заправляются в обувь
                         document.getElementById(picID).style['z-index'] = 130;
                     }
                 }
@@ -632,11 +650,17 @@
                         document.getElementById(picID).style['z-index'] = -1; // задник
                     }
                 }
-                for (let i = 0; i < 4; i++) {
+                for (let i = 0; i < 5; i++) {
                     picID = setupPicture(`assets/shoes${i + 1}`);
                     shoes.push(picID);
 
                     document.getElementById(picID).style['z-index'] = 135;
+                    
+                    if (i === 4) {
+                        hasBackElement.push(picID);
+                        picID = setupPicture(picID + `back`, false, true);
+                        document.getElementById(picID).style['z-index'] = -1; // задник
+                    }
                 }
                 for (let i = 0; i < 12; i++) {
                     picID = setupPicture(`assets/undies${i + 1}`);
@@ -728,7 +752,7 @@
                             }
 
                             // шляпа и комбезы не работают вместе
-                            if (menuItem.id.includes('accessories1')) {
+                            if (menuItem.id.includes('accessories1mini')) {
                                 for (let combos of ['assets/dresses2', 'assets/dresses3']) {
                                     hide(combos);
                                 }
@@ -742,6 +766,24 @@
                                 for (let combos of ['assets/dresses2', 'assets/dresses3']) {
                                     hide(combos);
                                 }
+                            }
+
+                            // кофты и халат не работают вместе
+                            if (menuItem.id.includes('dresses4')) {
+                                for (let shirt of shirts) {
+                                    hide(shirt);
+                                }
+                            }
+                            if (menuItem.id.includes('shirts')) {
+                                hide('assets/dresses4');
+                            }
+
+                            // шляпа и уши не работают вместе
+                            if (menuItem.id === 'assets/accessories1mini') {
+                                hide('assets/accessories9');
+                            }
+                            if (menuItem.id.includes('accessories9')) {
+                                hide('assets/accessories1');
                             }
 
                             // разные фоны
