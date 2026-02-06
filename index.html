@@ -393,7 +393,8 @@
               <option value="outerwear">Верхняя одежда</option>
               <option value="accessories">Аксессуары</option>
               <option value="hair">Прически</option>
-              <option value="body">Лицо и шрамы</option>
+              <option value="body">Тело и шрамы</option>
+              <option value="husband">Муж</option>
               <option value="back">Фоны</option>
             </select>
 
@@ -409,6 +410,7 @@
         <div class="outfits-scroll-container">
             <div class="outfits">
             <button disabled="disabled" onclick="specialLook(event)">Домашний образ</button>
+            <button disabled="disabled" onclick="specialLook(event)">Чумной доктор</button>
             <button disabled="disabled" onclick="specialLook(event)">Петровский</button>
             <button disabled="disabled" onclick="specialLook(event)">Выход в свет</button>
             <button disabled="disabled" onclick="specialLook(event)">Высокая мода</button>
@@ -464,6 +466,7 @@
         let hair = [];
         let body = [];
         let backs = [];
+        let husband = [];
         let clothes = [];
         let hasBackElement = [];
 
@@ -554,7 +557,6 @@
             show(picID);
 
             const handleImageLoad = (e) => {
-                console.log('base image loaded first');
                 if (!startedLoadingClothes) loadAllClothes();
                 e.target.removeEventListener('load', handleImageLoad);
             }
@@ -563,15 +565,21 @@
                 document.getElementById(picID).addEventListener('load', handleImageLoad);
             }
 
-            setTimeout(() => { 
-                console.log('base image loaded first');
-                if (!startedLoadingClothes) loadAllClothes(); 
-            }, 1000);
+            setTimeout(() => { if (!startedLoadingClothes) loadAllClothes(); }, 1000);
         }
 
         function loadAllClothes() {
             if (!startedLoadingClothes) {
                 startedLoadingClothes = true;
+
+                for (let i = 0; i < 12; i++) {
+                    picID = setupPicture(`assets/undies${i + 1}`);
+                    undies.push(picID);
+
+                    document.getElementById(picID).style['z-index'] = 1; // под всем
+                }
+                // defaults
+                setupClothesType('undies');
 
                 // other backs
                 for (let i = 1; i < 4; i++) {
@@ -581,7 +589,7 @@
                     document.getElementById(picID).style['z-index'] = -2;
                 }
                 
-                for (let i = 0; i < 11; i++) {
+                for (let i = 0; i < 10; i++) {
                     picID = setupPicture(`assets/accessories${i + 1}`);
                     accessories.push(picID);
 
@@ -592,24 +600,28 @@
                         picID = setupPicture(picID + `back`, false, true);
                         document.getElementById(picID).style['z-index'] = -1; // задник шляпы
                     }
-                    if (i === 1) {
-                        document.getElementById(picID).style['z-index'] = 100; // перчатки под кофтами
+                    if (i === 1 || i === 8) {
+                        document.getElementById(picID).style['z-index'] = 90; // перчатки под кофтами
                     }
-                    if (i === 6 || i === 10) {
+                    if (i === 6 || i === 7) {
                         document.getElementById(picID).style['z-index'] = 350; // шарф под волосами над одеждой
                     }
-                    if (i === 8) {
-                        document.getElementById(picID).style['z-index'] = 450; // уши над волосами
+                    if (i === 9) {
+                        document.getElementById(picID).style['z-index'] = 450; // маска над волосами под шляпой
                     }
-                    if (i === 7 || i === 9) {
-                        document.getElementById(picID).style['z-index'] = -1; // крылья или хвост за спиной
-                    }
+                    
                 }
-                for (let i = 0; i < 5; i++) {
+                for (let i = 0; i < 9; i++) {
                     picID = setupPicture(`assets/body${i + 1}`);
                     body.push(picID);
 
                     document.getElementById(picID).style['z-index'] = 1; // под всем
+                    if (i === 7) {
+                        document.getElementById(picID).style['z-index'] = 450; // уши над волосами
+                    }
+                    if (i === 6 || i === 8) {
+                        document.getElementById(picID).style['z-index'] = -1; // крылья или хвост за спиной
+                    }
                 }
                 for (let i = 0; i < 4; i++) {
                     picID = setupPicture(`assets/dresses${i + 1}`);
@@ -624,18 +636,18 @@
                         document.getElementById(picID).style['z-index'] = -1; // задник
                     }
                 }
-                for (let i = 1; i < 4; i++) {
+                for (let i = 1; i < 6; i++) {
                     picID = setupPicture(`assets/hair${i + 1}`);
                     hair.push(picID);
 
                     document.getElementById(picID).style['z-index'] = 400; // над всей одеждой
                 }
-                for (let i = 0; i < 1; i++) {
+                for (let i = 0; i < 3; i++) {
                     picID = setupPicture(`assets/outerwear${i + 1}`);
                     outerwear.push(picID);
                     document.getElementById(picID).style['z-index'] = 300; // над всей прочей одеждой
 
-                    if (i === 0) {
+                    if (i < 2) {
                         hasBackElement.push(picID);
                         picID = setupPicture(picID + `back`, false, true);
                         document.getElementById(picID).style['z-index'] = -1; // задник
@@ -653,15 +665,15 @@
                         document.getElementById(picID).style['z-index'] = 130;
                     }
                 }
-                for (let i = 0; i < 13; i++) {
+                for (let i = 0; i < 18; i++) {
                     picID = setupPicture(`assets/shirts${i + 1}`);
                     shirts.push(picID);
 
                     document.getElementById(picID).style['z-index'] = 100;
-                    if ([0, 1, 2, 3, 4, 7, 8, 12].includes(i)) { // кофты которые заправляются
+                    if ([0, 1, 2, 3, 4, 7, 12, 14, 15, 16, 17].includes(i)) { // кофты которые заправляются
                         document.getElementById(picID).style['z-index'] = 120;
                     }
-                    if ([5, 6, 11].includes(i)) { // футболки / кофты сверху
+                    if ([5, 6, 11, 13].includes(i)) { // футболки / кофты сверху
                         document.getElementById(picID).style['z-index'] = 150;
                     }
                     if (i === 12) {
@@ -682,15 +694,11 @@
                         document.getElementById(picID).style['z-index'] = -1; // задник
                     }
                 }
-                for (let i = 0; i < 12; i++) {
-                    picID = setupPicture(`assets/undies${i + 1}`);
-                    undies.push(picID);
 
-                    document.getElementById(picID).style['z-index'] = 1; // под всем
-                }
-
-                // defaults
-                setupClothesType('undies');
+                // Олег
+                picID = setupPicture(`assets/husband`);
+                husband.push(picID);
+                document.getElementById(picID).style['z-index'] = 0;
 
                 document.querySelectorAll('button').forEach((btn) => { btn.disabled = false; });
 
@@ -730,10 +738,26 @@
                                 }
                             }
 
+                            function shirtsByNums(nums, mini = false) {
+                                let ids = []
+                                for (let num of nums) {
+                                    ids.push(`assets/shirts${num}` + (mini ? 'mini' : ''));
+                                }
+                                return ids;
+                            }
+
                             // снимаем старые кофты (кроме универсальных)
-                            if (menuItem.id.includes('shirts') && !['assets/shirts10mini', 'assets/shirts11mini'].includes(menuItem.id)) {
+                            if (menuItem.id.includes('shirts14')) {
+                                for (let shirt of shirtsByNums([6, 7, 12, 13, 15, 16, 17, 18])) {
+                                    hide(shirt);
+                                }
+                            } else if (shirtsByNums([6, 7, 12, 13, 15, 16, 17, 18], true).includes(menuItem.id)) {
                                 for (let shirt of shirts) {
-                                    if (!['assets/shirts10', 'assets/shirts11'].includes(shirt)) hide(shirt);
+                                    if (!shirtsByNums([10, 11]).includes(shirt)) hide(shirt);
+                                }
+                            } else if (menuItem.id.includes('shirts') && !shirtsByNums([10, 11], true).includes(menuItem.id)) {
+                                for (let shirt of shirts) {
+                                    if (!shirtsByNums([10, 11, 14]).includes(shirt)) hide(shirt);
                                 }
                             }
 
@@ -761,6 +785,13 @@
                                 }
                             }
 
+                            // разные шарфы
+                            if (['assets/accessories7mini', 'assets/accessories8mini'].includes(menuItem.id)) {
+                                for (let scarf of ['assets/accessories7', 'assets/accessories8']) {
+                                    hide(scarf);
+                                }
+                            }
+
                             // комбинезоны — убираем куртки и волосы
                             if (['assets/dresses2mini', 'assets/dresses3mini'].includes(menuItem.id)) {
                                 for (let hairID of hair) {
@@ -771,14 +802,15 @@
                                 }
                             }
 
-                            // шляпа и комбезы не работают вместе
-                            if (menuItem.id.includes('accessories1mini')) {
+                            // шляпа/уши и комбезы не работают вместе
+                            if (['assets/accessories1mini', 'assets/body8mini'].includes(menuItem.id)) {
                                 for (let combos of ['assets/dresses2', 'assets/dresses3']) {
                                     hide(combos);
                                 }
                             }
                             if (['assets/dresses2mini', 'assets/dresses3mini'].includes(menuItem.id)) {
                                 hide('assets/accessories1');
+                                hide('assets/body8');
                             }
 
                             // куртки и комбинезоны не работают вместе
@@ -800,10 +832,29 @@
 
                             // шляпа и уши не работают вместе
                             if (menuItem.id === 'assets/accessories1mini') {
-                                hide('assets/accessories9');
+                                hide('assets/body8');
                             }
-                            if (menuItem.id.includes('accessories9')) {
+                            if (menuItem.id.includes('body8')) {
                                 hide('assets/accessories1');
+                            }
+
+                            // разные куртки
+                            if (menuItem.id.includes('outerwear')) {
+                                for (let out of outerwear) {
+                                    hide(out);
+                                }
+                            }
+
+                            // куртки и большие кофты
+                            if (menuItem.id.includes('outerwear')) {
+                                for (let shirt of shirtsByNums([12, 13])) {
+                                    hide(shirt);
+                                }
+                            }
+                            if (['assets/shirts12mini', 'assets/shirts13mini'].includes(menuItem.id)) {
+                                for (let out of outerwear) {
+                                    hide(out);
+                                }
                             }
 
                             // разные фоны
@@ -822,7 +873,7 @@
 
         function clearClothes() {
             for (let pic of clothes) {
-                if (!pic.includes('back')) {
+                if (!pic.includes('back') && !pic.includes('husband')) {
                     hide(pic);
                 }
             }
@@ -892,10 +943,23 @@
                     show('assets/undies7');
                     show('assets/accessories5');
                     break;
+                case 'Чумной доктор':
+                    show('assets/hair6');
+                    show('assets/shirts8');
+                    show('assets/pants7');
+                    show('assets/shoes5');
+                    show('assets/outerwear2');
+                    show('assets/accessories4');
+                    show('assets/accessories9');
+                    show('assets/accessories10');
+                    break;
             }
         }
 
-        clearBtn.addEventListener('click', clearClothes); 
+        clearBtn.addEventListener('click', () => {
+            clearClothes();
+            hide('assets/husband');
+        }); 
 
         function configModal(imageSources) {
             const images = [];
