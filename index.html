@@ -467,6 +467,8 @@
         let clothes = [];
         let hasBackElement = [];
 
+        let startedLoadingClothes = false;
+
         let currentZ = 1;
 
         initializePictures();
@@ -551,8 +553,22 @@
             document.getElementById(picID).style['z-index'] = 400; // над всей одеждой
             show(picID);
 
-            // for all the other stuff to load
-            setTimeout(() => {
+            const handleImageLoad = (e) => {
+                if (!startedLoadingClothes) loadAllClothes();
+                e.target.removeEventListener('load', handleImageLoad);
+            }
+
+            if (!document.getElementById(picID).complete) {
+                document.getElementById(picID).addEventListener('load', handleImageLoad);
+            }
+
+            setTimeout(() => { if (!startedLoadingClothes) loadAllClothes(); }, 1000);
+        }
+
+        function loadAllClothes() {
+            if (!startedLoadingClothes) {
+                startedLoadingClothes = true;
+
                 // other backs
                 for (let i = 1; i < 4; i++) {
                     picID = setupPicture(`assets/back${i + 1}`);
@@ -797,7 +813,7 @@
                         }
                     }
                 });
-            }, 1000);
+            }
         }
 
         function clearClothes() {
