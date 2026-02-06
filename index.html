@@ -459,7 +459,6 @@
 
     <script>
         // НОВЫЕ ШТАНЫ, 
-        // ПОПРАВИТЬ ПЛАЩ        
         // символ загрузки в менюшке
 
         const costumeContainer = document.getElementById('costumeContainer');
@@ -612,7 +611,7 @@
                     picID = setupPicture(`assets/undies${i + 1}`);
                     undies.push(picID);
 
-                    document.getElementById(picID).style['z-index'] = 1; // под всем
+                    document.getElementById(picID).style['z-index'] = 20; // под всем
                 }
                 // defaults
                 setupClothesType('undies');
@@ -1026,11 +1025,20 @@
                     show('assets/undies3');
                     show('assets/undies5');
                     show('assets/back3');
+                    show('assets/shoes4');
+                    show('assets/accessories3');
+
+                    // Олег виден
+                    if (document.getElementById('assets/husband1').className.includes('visible')) {
+                        hide('assets/husband1');
+                        show('assets/husband2');
+                    }
                     break;
                 case 'Высокая мода':
                     show('assets/shirts13');
                     show('assets/pants9');
-                    show('assets/hair7');
+                    show('assets/shoes1');
+                    show('assets/hair6');
                     break;
                 case 'Домашний образ 2.0':
                     show('assets/shirts5');
