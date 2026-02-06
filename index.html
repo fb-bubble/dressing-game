@@ -554,6 +554,7 @@
             show(picID);
 
             const handleImageLoad = (e) => {
+                console.log('base image loaded first');
                 if (!startedLoadingClothes) loadAllClothes();
                 e.target.removeEventListener('load', handleImageLoad);
             }
@@ -562,7 +563,10 @@
                 document.getElementById(picID).addEventListener('load', handleImageLoad);
             }
 
-            setTimeout(() => { if (!startedLoadingClothes) loadAllClothes(); }, 1000);
+            setTimeout(() => { 
+                console.log('base image loaded first');
+                if (!startedLoadingClothes) loadAllClothes(); 
+            }, 1000);
         }
 
         function loadAllClothes() {
