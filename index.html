@@ -303,6 +303,18 @@
             background-color: white;
             position: relative;
         }
+
+        .footer-info {
+            margin-top: 30px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #555;
+            text-align: center;
+        }
+
+        .footer-info p {
+            margin: 10px auto;
+        }
         
         @media (max-width: 768px) {
             .container {
@@ -440,7 +452,17 @@
         </div>
     </div>
 
+    <div class="footer-info">
+        <p>Сделано на ФБ командой Bubble.</p>
+        <p>Пост на ао3 <a href="" target="_blank">здесь</a>.</p>
+    </div>
+
     <script>
+        // ПОПРАВИТЬ РАЗМЕРЫ ВСЕХ ФАЙЛОВ, 
+        // НОВЫЕ ШТАНЫ, 
+        // ПОПРАВИТЬ ПЛАЩ        
+        // символ загрузки в менюшке
+
         const costumeContainer = document.getElementById('costumeContainer');
         const imageMenu = document.getElementById('imageMenu');
         const clearBtn = document.getElementById('clearBtn');
@@ -523,8 +545,14 @@
                     document.getElementById(back + 'mini').classList.remove('menu-item-chosen');
                 }
             }
+
             document.getElementById(elID).classList.add('visible');
-            document.getElementById(elID + 'mini').classList.add('menu-item-chosen');
+            
+            if (elID.includes('husband2')) {
+                document.getElementById('assets/husband1' + 'mini').classList.add('menu-item-chosen');
+            } else {
+                document.getElementById(elID + 'mini').classList.add('menu-item-chosen');
+            }
 
             if (hasBackElement.includes(elID)) { // с задником
                 document.getElementById(elID + 'back').classList.add('visible');
@@ -533,7 +561,16 @@
 
         function hide(elID) {
             document.getElementById(elID).classList.remove('visible');
-            document.getElementById(elID + 'mini').classList.remove('menu-item-chosen');
+            
+            if (elID.includes('husband1')) {
+                document.getElementById('assets/husband2').classList.remove('visible');
+            }
+
+            if (elID.includes('husband2')) {
+                document.getElementById('assets/husband1mini').classList.remove('menu-item-chosen');
+            } else {
+                document.getElementById(elID + 'mini').classList.remove('menu-item-chosen');
+            }
 
             if (hasBackElement.includes(elID)) { // с задником
                 document.getElementById(elID + 'back').classList.remove('visible');
@@ -582,7 +619,7 @@
                 setupClothesType('undies');
 
                 // other backs
-                for (let i = 1; i < 4; i++) {
+                for (let i = 1; i < 5; i++) {
                     picID = setupPicture(`assets/back${i + 1}`);
                     backs.push(picID);
 
@@ -607,7 +644,7 @@
                         document.getElementById(picID).style['z-index'] = 350; // шарф под волосами над одеждой
                     }
                     if (i === 9) {
-                        document.getElementById(picID).style['z-index'] = 450; // маска над волосами под шляпой
+                        document.getElementById(picID).style['z-index'] = 350; // маска над волосами под шляпой
                     }
                     
                 }
@@ -636,11 +673,21 @@
                         document.getElementById(picID).style['z-index'] = -1; // задник
                     }
                 }
-                for (let i = 1; i < 6; i++) {
+                for (let i = 1; i < 7; i++) {
                     picID = setupPicture(`assets/hair${i + 1}`);
                     hair.push(picID);
 
                     document.getElementById(picID).style['z-index'] = 400; // над всей одеждой
+                    if (i === 6) {
+                        hasBackElement.push(picID);
+                        picID = setupPicture(picID + `back`, false, true);
+                        document.getElementById(picID).style['z-index'] = -1; // задник
+                    }
+                    if (i === 5) {
+                        hasBackElement.push(picID);
+                        picID = setupPicture(picID + `back`, false, true);
+                        document.getElementById(picID).style['z-index'] = 300; // задник
+                    }
                 }
                 for (let i = 0; i < 3; i++) {
                     picID = setupPicture(`assets/outerwear${i + 1}`);
@@ -696,26 +743,47 @@
                 }
 
                 // Олег
-                picID = setupPicture(`assets/husband`);
+                picID = setupPicture(`assets/husband1`);
                 husband.push(picID);
                 document.getElementById(picID).style['z-index'] = 0;
 
+                // диалог Олега
+                picID = setupPicture(`assets/husband3`);
+                husband.push(picID);
+                document.getElementById(picID).style['z-index'] = 500;
+
+                // Олег без кулона
+                picID = setupPicture(`assets/husband2`, false, true);
+                husband.push(picID);
+                document.getElementById(picID).style['z-index'] = 0;
+
+                // возвращаем кнопки
                 document.querySelectorAll('button').forEach((btn) => { btn.disabled = false; });
 
+                // выбор
                 imageMenu.addEventListener('click', (e) => {
-                    // убираем луки
-                    const buttons = document.getElementsByTagName("button");
-                    for (const b of buttons) {
-                        b.classList.remove('button-chosen');
-                    }
                     // что выбрали
                     let menuItem = e.target.closest('.menu-item');
                     
                     if (menuItem) {
-                        const mainPic = document.getElementById(menuItem.id.slice(0, -4));
+                        // убираем кнопки аутфитов
+                        if (!menuItem.id.includes('husband')) {
+                            const buttons = document.getElementsByTagName("button");
+                            for (const b of buttons) {
+                                b.classList.remove('button-chosen');
+                            }
+                        }
 
-                        if (mainPic.className.includes('visible')) {
-                            hide(mainPic.id);
+                        const mainID = menuItem.id.slice(0, -4);
+
+                        if (document.getElementById(mainID).className.includes('visible')) {
+                            hide(mainID);
+                            if (mainID.includes('husband1')) {
+                                hide('assets/husband3');
+                            }
+                        } else if (mainID.includes('husband1') && document.getElementById('assets/husband2').className.includes('visible')) {
+                            hide('assets/husband2');
+                            hide('assets/husband3');
                         } else {
                             if (menuItem.id.includes('hair')) {
                                 // чистим прически
@@ -838,6 +906,14 @@
                                 hide('assets/accessories1');
                             }
 
+                            // шляпа и петушапка не работают вместе
+                            if (menuItem.id === 'assets/accessories1mini') {
+                                hide('assets/hair6');
+                            }
+                            if (menuItem.id.includes('hair6')) {
+                                hide('assets/accessories1');
+                            }
+
                             // разные куртки
                             if (menuItem.id.includes('outerwear')) {
                                 for (let out of outerwear) {
@@ -864,7 +940,26 @@
                                 }
                             }
 
-                            show(mainPic.id);
+                            // Серега тырит кулон
+                            if (menuItem.id.includes('accessories3')) {
+                                // Олег виден
+                                if (document.getElementById('assets/husband1').className.includes('visible')) {
+                                    hide('assets/husband1');
+                                    show('assets/husband2');
+                                }
+                            }
+
+                            // что показываем с учетом разных версий Олега
+                            if (menuItem.id.includes('husband1')) {
+                                // Серега стырил кулон
+                                if (document.getElementById('assets/accessories3').className.includes('visible')) {
+                                    show('assets/husband2');
+                                } else {
+                                    show('assets/husband1');
+                                }
+                            } else {
+                                show(mainID);
+                            }
                         }
                     }
                 });
@@ -882,8 +977,6 @@
             for (const b of buttons) {
                 b.classList.remove('button-chosen');
             }
-
-            show('assets/hair1');
         }
 
         function specialLook(event) {
@@ -904,12 +997,19 @@
 
             switch (event.target.textContent) {
                 case 'Домашний образ':
+                    show('assets/hair1');
                     show('assets/undies2');
                     show('assets/undies12');
                     show('assets/shirts7');
                     show('assets/shoes2');
                     show('assets/accessories3');
                     show('assets/back1');
+
+                    // Олег виден
+                    if (document.getElementById('assets/husband1').className.includes('visible')) {
+                        hide('assets/husband1');
+                        show('assets/husband2');
+                    }
                     break;
                 case 'Петровский':
                     show('assets/hair4');
@@ -931,10 +1031,12 @@
                 case 'Высокая мода':
                     show('assets/shirts13');
                     show('assets/pants9');
+                    show('assets/hair7');
                     break;
                 case 'Домашний образ 2.0':
                     show('assets/shirts5');
                     show('assets/back1');
+                    show('assets/hair3');
                     break;
                 case 'Училка информатики':
                     show('assets/shirts12');
@@ -942,6 +1044,7 @@
                     show('assets/shoes4');
                     show('assets/undies7');
                     show('assets/accessories5');
+                    show('assets/hair1');
                     break;
                 case 'Чумной доктор':
                     show('assets/hair6');
@@ -958,7 +1061,8 @@
 
         clearBtn.addEventListener('click', () => {
             clearClothes();
-            hide('assets/husband');
+            hide('assets/husband1');
+            hide('assets/husband2');
         }); 
 
         function configModal(imageSources) {
@@ -973,11 +1077,20 @@
                 images.forEach((img, index) => {
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 });
+
+                // подпись
+                ctx.font = "30px Charter";
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 4;
+                ctx.fillStyle = 'white';
+
+                ctx.strokeText("WTF Bubble 2026", canvas.width - 250, canvas.height - 20);
+                ctx.fillText("WTF Bubble 2026", canvas.width - 250, canvas.height - 20);
             }
             
             imageSources.forEach((src, index) => {
                 const img = new Image();
-                img.crossOrigin = 'anonymous';
+                // img.crossOrigin = 'anonymous';
                 
                 img.onload = () => {
                     images[index] = img;
