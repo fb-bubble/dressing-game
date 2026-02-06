@@ -1090,7 +1090,7 @@
             
             imageSources.forEach((src, index) => {
                 const img = new Image();
-                // img.crossOrigin = 'anonymous';
+                img.crossOrigin = 'anonymous';
                 
                 img.onload = () => {
                     images[index] = img;
