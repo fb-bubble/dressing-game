@@ -860,6 +860,8 @@
                                 for (let hairID of hair) {
                                     hide(hairID);
                                 }
+                            }
+                            if (['assets/dresses2mini', 'assets/dresses3mini', 'assets/dresses4mini'].includes(menuItem.id)) {
                                 for (let outerwearID of outerwear) {
                                     hide(outerwearID);
                                 }
@@ -878,7 +880,7 @@
 
                             // куртки и комбинезоны не работают вместе
                             if (menuItem.id.includes('outerwear')) {
-                                for (let combos of ['assets/dresses2', 'assets/dresses3']) {
+                                for (let combos of ['assets/dresses2', 'assets/dresses3', 'assets/dresses4']) {
                                     hide(combos);
                                 }
                             }
@@ -926,6 +928,15 @@
                                 for (let out of outerwear) {
                                     hide(out);
                                 }
+                            }
+                            // узкий плащ и футболки
+                            if (menuItem.id.includes('outerwear2')) {
+                                for (let shirt of shirtsByNums([6, 7])) {
+                                    hide(shirt);
+                                }
+                            }
+                            if (['assets/shirts6mini', 'assets/shirts7mini'].includes(menuItem.id)) {
+                                hide('assets/outerwear2');
                             }
 
                             // разные фоны
